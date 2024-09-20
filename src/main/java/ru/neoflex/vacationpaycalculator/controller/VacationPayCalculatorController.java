@@ -9,18 +9,23 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.neoflex.vacationpaycalculator.exception.IncorrectDateFormatException;
 import ru.neoflex.vacationpaycalculator.service.VacationPayCalculatorService;
+
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @RestController
 @RequestMapping("/calculate")
 public class VacationPayCalculatorController {
 
-    @Autowired
-    private VacationPayCalculatorService vacationPayCalculatorService;
+    private final VacationPayCalculatorService vacationPayCalculatorService;
 
+    @Autowired
+    public VacationPayCalculatorController(VacationPayCalculatorService vacationPayCalculatorService) {
+        this.vacationPayCalculatorService = vacationPayCalculatorService;
+    }
 
     @GetMapping
-    public ResponseEntity getAmountVacationPay(@RequestParam double averageSalary,
+    public ResponseEntity<?> getAmountVacationPay(@RequestParam BigDecimal averageSalary,
                                                @RequestParam(required = false) Integer numbersOfVacationDays,
                                                @RequestParam(required = false) @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate startDay,
                                                @RequestParam(required = false) @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate endDay) {
@@ -34,7 +39,7 @@ public class VacationPayCalculatorController {
         } catch (IncorrectDateFormatException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body("UNKNOWN ERROR");
         }
     }
 }

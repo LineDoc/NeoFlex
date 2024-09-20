@@ -14,7 +14,7 @@ public class CalendarService {
 
     private final Set<LocalDate> payDaysSet = new HashSet<>();
 
-    public int payVacationDays(LocalDate startDay, LocalDate endDay) throws IncorrectDateFormatException {
+    public int payVacationDaysCalculate(LocalDate startDay, LocalDate endDay) throws IncorrectDateFormatException {
 
         //Проверка принятых дат
         //Если не указана какая-либо из дат -> исключение
@@ -31,7 +31,8 @@ public class CalendarService {
         //Рабочие дни с учётом праздников при рабочем графике 5/2
         LocalDate startLocalDate = startDay;
         while (!startLocalDate.isAfter(endDay)) {
-            if (!(startLocalDate.getDayOfWeek().equals(DayOfWeek.SATURDAY) || startLocalDate.getDayOfWeek().equals(DayOfWeek.SUNDAY)) &&
+            if (!(startLocalDate.getDayOfWeek().equals(DayOfWeek.SATURDAY) ||
+                    startLocalDate.getDayOfWeek().equals(DayOfWeek.SUNDAY)) &&
                     !PublicHolidays.set.contains(MonthDay.from(startLocalDate))) {
 
                 payDaysSet.add(startLocalDate);
