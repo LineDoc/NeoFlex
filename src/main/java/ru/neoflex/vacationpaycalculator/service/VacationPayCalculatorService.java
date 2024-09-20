@@ -5,32 +5,33 @@ import org.springframework.stereotype.Service;
 import ru.neoflex.vacationpaycalculator.exception.IncorrectDateFormatException;
 
 import java.text.DecimalFormat;
-import java.util.*;
+import java.time.LocalDate;
 
 @Service
-public class VacationPayCalculatorService {
+public final class VacationPayCalculatorService {
 
     @Autowired
     CalendarService calendarService;
 
-    private final DecimalFormat decimalFormat = new DecimalFormat("##.##");
     private final double AVERAGE_NUMBER_DAYS_IN_MONTH = 29.3;
-    private Double amountVacationPay;
+    private final double NDFL_TAX = 0.13;
+    private double amountVacationPay;
+    private final DecimalFormat decimalFormat = new DecimalFormat("#.##");
 
-    public String calculation(double averageSalary, int days) {
-        amountVacationPay = 0.87 * (averageSalary / AVERAGE_NUMBER_DAYS_IN_MONTH)
-                * days;
+    //Расчёт отпускных с учётом НДФЛ 13%
+    //если указаны только среднемесячная зарплата и кол-во дней отпуска
+    public String calculation(double averageSalary, int vacationDays) {
+        amountVacationPay = (1 - NDFL_TAX) * (averageSalary / AVERAGE_NUMBER_DAYS_IN_MONTH)
+                * vacationDays;
         return "Сумма отпускных с учётом НДФЛ 13%: " + decimalFormat.format(amountVacationPay) + " руб";
     }
 
-    public String calculation(double averageSalary, Date startDay, Date stopDay) throws IncorrectDateFormatException {
-        amountVacationPay = 0.87 * (averageSalary / AVERAGE_NUMBER_DAYS_IN_MONTH)
-                * calendarService.payVacationDays(startDay,stopDay);
-
-        calendarService.getPayDaysList().clear();
-
+    //если указаны среднемесячная зарплата и даты начала и окончания отпуска;
+    //с учётом выходных и праздников
+    public String calculation(double averageSalary, LocalDate startDay, LocalDate endDay) throws IncorrectDateFormatException {
+        amountVacationPay = (1 - NDFL_TAX) * (averageSalary / AVERAGE_NUMBER_DAYS_IN_MONTH)
+                * calendarService.payVacationDays(startDay,endDay);
         return "Сумма отпускных с учётом НДФЛ 13%: " + decimalFormat.format(amountVacationPay) + " руб.";
-
     }
 
 }
